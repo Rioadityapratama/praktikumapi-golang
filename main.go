@@ -48,6 +48,18 @@ func main() {
 		c.JSON(http.StatusCreated, gin.H{"data": user})
 	})
 
-	//
+//GET by ID
+router.GET("/users/:id", func(c *gin.Context) {
+    var user User
+    id := c.Param("id")
+
+    if err := db.First(&user, id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": user})
+})
+
     router.Run(":3000")
 }
