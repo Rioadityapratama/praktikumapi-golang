@@ -79,5 +79,29 @@ router.DELETE("/users/:id", func(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
 })
 
+//PUT by ID
+router.PUT("/users/:id", func(c *gin.Context) {
+    var user User
+    id := c.Param("id")
+
+    if err := db.First(&user, id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+        return
+    }
+
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+        return
+    }
+
+    user.UpdatedAt = time.Now()
+    if err := db.Save(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update user"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": user})
+})
+
     router.Run(":3000")
 }
